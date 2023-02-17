@@ -5,10 +5,15 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableModel;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.Font;
 import javax.swing.JTextField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+
 
 public class TestGUI {
 
@@ -29,6 +34,10 @@ public class TestGUI {
 	private JTextField textField_12;
 	private JTextField textField_13;
 	private JTextField textField_14;
+	private JTextField textField_15;
+	private JTextField txtA_1;
+	private JTextField txtJmpRA;
+	private JTable table;
 
 	/**
 	 * Launch the application.
@@ -65,11 +74,11 @@ public class TestGUI {
 		
 		JPanel registers = new JPanel();
 		registers.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
-		registers.setBounds(10, 11, 170, 285);
+		registers.setBounds(10, 10, 170, 285);
 		frame.getContentPane().add(registers);
 		registers.setLayout(null);
 		
-		JLabel lblNewLabel = new JLabel("Register File");
+		JLabel lblNewLabel = new JLabel("ALU Registers");
 		lblNewLabel.setFont(new Font("Arial", Font.BOLD, 20));
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setBounds(0, 0, 170, 40);
@@ -282,5 +291,137 @@ public class TestGUI {
 		lblR_14.setFont(new Font("Dialog", Font.BOLD, 12));
 		lblR_14.setBounds(130, 250, 30, 25);
 		registers.add(lblR_14);
+		
+		JPanel control = new JPanel();
+		control.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
+		control.setBounds(10, 305, 200, 160);
+		frame.getContentPane().add(control);
+		control.setLayout(null);
+		
+		JLabel lblSpecials = new JLabel("Control Unit");
+		lblSpecials.setHorizontalAlignment(SwingConstants.CENTER);
+		lblSpecials.setFont(new Font("Arial", Font.BOLD, 20));
+		lblSpecials.setBounds(0, 0, 200, 40);
+		control.add(lblSpecials);
+		
+		textField_15 = new JTextField();
+		textField_15.setText("45");
+		textField_15.setHorizontalAlignment(SwingConstants.CENTER);
+		textField_15.setFont(new Font("Monospaced", Font.PLAIN, 15));
+		textField_15.setColumns(10);
+		textField_15.setBounds(10, 40, 30, 25);
+		control.add(textField_15);
+		
+		JLabel lblProgramCounter = new JLabel("Program Counter");
+		lblProgramCounter.setFont(new Font("Dialog", Font.BOLD, 12));
+		lblProgramCounter.setBounds(50, 40, 120, 25);
+		control.add(lblProgramCounter);
+		
+		txtA_1 = new JTextField();
+		txtA_1.setText("A455");
+		txtA_1.setHorizontalAlignment(SwingConstants.CENTER);
+		txtA_1.setFont(new Font("Monospaced", Font.PLAIN, 15));
+		txtA_1.setColumns(10);
+		txtA_1.setBounds(10, 70, 50, 25);
+		control.add(txtA_1);
+		
+		JLabel lblInstructionRegister = new JLabel("Instruction Register");
+		lblInstructionRegister.setFont(new Font("Dialog", Font.BOLD, 12));
+		lblInstructionRegister.setBounds(70, 70, 120, 25);
+		control.add(lblInstructionRegister);
+		
+		txtJmpRA = new JTextField();
+		txtJmpRA.setText("ADD r10 r10 r10");
+		txtJmpRA.setHorizontalAlignment(SwingConstants.CENTER);
+		txtJmpRA.setFont(new Font("Monospaced", Font.PLAIN, 15));
+		txtJmpRA.setColumns(10);
+		txtJmpRA.setBounds(10, 125, 180, 25);
+		control.add(txtJmpRA);
+		
+		JLabel lblDecodedInstruction = new JLabel("Decoded Instruction");
+		lblDecodedInstruction.setHorizontalAlignment(SwingConstants.CENTER);
+		lblDecodedInstruction.setFont(new Font("Dialog", Font.BOLD, 12));
+		lblDecodedInstruction.setBounds(10, 100, 180, 25);
+		control.add(lblDecodedInstruction);
+		
+		JPanel memory = new JPanel();
+		memory.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
+		memory.setBounds(190, 10, 270, 285);
+		frame.getContentPane().add(memory);
+		memory.setLayout(null);
+		
+		JLabel lblMemory = new JLabel("Memory Contents");
+		lblMemory.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMemory.setFont(new Font("Arial", Font.BOLD, 20));
+		lblMemory.setBounds(0, 0, 270, 40);
+		memory.add(lblMemory);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 40, 250, 235);
+		memory.add(scrollPane);
+		
+		
+		String[][] elems = new String[32][8];
+		table = new JTable(new TableModel() {
+			@Override
+			public void setValueAt(Object val, int row, int col) {
+				if(!(val instanceof String)) return;
+				elems[row][col-1] = (String) val;
+			}
+			
+			@Override
+			public void removeTableModelListener(TableModelListener l) {}
+			
+			@Override
+			public boolean isCellEditable(int row, int col) {
+				return col != 0;
+			}
+			
+			@Override
+			public Object getValueAt(int row, int col) {
+				return col == 0 ? new String[] {
+					"00x", "08x", "10x", "18x", "20x", "28x", "30x", "38x",
+					"40x", "48x", "50x", "58x", "60x", "68x", "70x", "78x",
+					"80x", "88x", "90x", "98x", "A0x", "A8x", "B0x", "B8x", 
+					"C0x", "C8x", "D0x", "D8x", "E0x", "E8x", "F0x", "F8x"
+				}[row] : elems[row][col-1];
+			}
+			
+			@Override
+			public int getRowCount() {
+				return 32;
+			}
+			
+			@Override
+			public String getColumnName(int col) {
+				return new String[] {"", "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7"}[col];
+			}
+			
+			@Override
+			public int getColumnCount() {
+				return 9;
+			}
+			
+			@Override
+			public Class<?> getColumnClass(int columnIndex) {
+				return String.class;
+			}
+			
+			@Override
+			public void addTableModelListener(TableModelListener l) {}
+		});
+		scrollPane.setViewportView(table);
+		
+		JPanel clock = new JPanel();
+		clock.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
+		clock.setBounds(220, 305, 240, 160);
+		frame.getContentPane().add(clock);
+		clock.setLayout(null);
+		
+		JLabel lblClockControl = new JLabel("Clock Control");
+		lblClockControl.setHorizontalAlignment(SwingConstants.CENTER);
+		lblClockControl.setFont(new Font("Arial", Font.BOLD, 20));
+		lblClockControl.setBounds(0, 0, 240, 40);
+		clock.add(lblClockControl);
 	}
 }
